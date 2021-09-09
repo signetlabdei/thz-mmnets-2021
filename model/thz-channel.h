@@ -156,6 +156,8 @@ private:
   double m_YnodeMode;  //!< Antenna mode of the Ynode of the node pair (X-Y)
   Ptr<THzSpectrumPropagationLoss> m_loss;
   Ptr<ConstantSpeedPropagationDelayModel> m_delay;
+  std::string m_type;
+  double m_ray;
   Ptr<THzDirectionalAntenna> m_thzDA;
   Ptr<THzNetDevice> m_sendDev;
 

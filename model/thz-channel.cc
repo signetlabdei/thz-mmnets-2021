@@ -30,6 +30,7 @@
 #include "ns3/pointer.h"
 #include "ns3/object-factory.h"
 #include "ns3/double.h"
+#include "ns3/string.h"
 #include "thz-channel.h"
 #include "ns3/mac48-address.h"
 #include "ns3/thz-spectrum-propagation-loss.h"
@@ -63,6 +64,16 @@ THzChannel::GetTypeId ()
                    DoubleValue (-110.0),
                    MakeDoubleAccessor (&THzChannel::m_noiseFloor),
                    MakeDoubleChecker<double> ())
+    .AddAttribute ("ChannelType",
+                  "Define the model of Channel,terasim, HB, FS",
+                   StringValue("terasim"),
+                   MakeStringAccessor(&THzChannel::m_type),
+                   MakeStringChecker())
+    .AddAttribute ("maxRay",
+                  "the maximum number of rays contribute to calculate the recived power",
+                   IntegerValue(1),
+                   MakeIntegerAccessor(&THzChannel::m_ray),
+                   MakeIntegerChecker<uint16_t>())
   ;
   return tid;
 }
@@ -141,8 +152,24 @@ THzChannel::SendPacket (Ptr<THzSpectrumSignalParameters> txParams)
             {
               m_Rxorientation = 0;
             }
-          m_totalGain = itt->first->GetDirAntenna ()->GetAntennaGain (XnodeMobility, YnodeMobility, m_XnodeMode, m_YnodeMode, m_Rxorientation);
-          double rxPower = m_loss->CalcRxPowerDA (txParams, XnodeMobility, YnodeMobility, m_totalGain);
+          double rxPower = 0;
+            m_totalGain = itt->first->GetDirAntenna ()->GetAntennaGain (XnodeMobility, YnodeMobility, m_XnodeMode, m_YnodeMode, m_Rxorientation);
+
+            if (m_type == "HB")
+            {
+              rxPower = m_loss->DoCalcHybridModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain);
+              break;
+            }
+            else if (m_type == "FS")
+            {
+              rxPower = m_loss->DoCalcFSModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain);
+              break;
+            }
+            else
+            {
+              rxPower = m_loss->CalcRxPowerDA (txParams, XnodeMobility, YnodeMobility, m_totalGain);
+              break;
+            }
           NS_LOG_DEBUG ("node " << it->first->GetNode ()->GetId () << "->" << itt->first->GetNode ()->GetId () << ", txPower = " << txParams->txPower << " dBm, totalGain = " << m_totalGain + 30 << " dBm, rxPower = " << rxPower << " dBm" << "  now: " << Simulator::Now ());
           uint32_t dstNodeId = itt->first->GetNode ()->GetId ();
           Ptr<Packet> copy = txParams->packet->Copy ();

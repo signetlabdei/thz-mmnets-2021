@@ -177,6 +177,15 @@ public:
     */
   double GetAntennaGain (Ptr<MobilityModel> XnodeMobility, Ptr<MobilityModel> YnodeMobility, bool XnodeMode, bool YnodeMode, double RxorientationRadians);
 
+  /**
+   * \param AOD angle of Tx
+   * \param senderMobility the mobility of one node of the node pair, which is denoted as X.
+   * \param recvMobility the mobility of the other node of the node pair, which is denoted as Y.
+   *
+   *\brief calculate the total directional antenna's gain between transmitter and receiver [dB].
+   */
+  double GetAntennaGainDbAngle (double AOA,  Ptr<const MobilityModel> senderMobility, Ptr<const MobilityModel> recvMobility) const;
+
 
 private:
   Ptr<THzNetDevice> m_device;
