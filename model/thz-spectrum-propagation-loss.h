@@ -136,6 +136,7 @@ public:
     * \param bAntenna the antenna model of receiver.
     * \param maxRay the maximum number of rays that can be counted to calculate the power.
     * \param RxTxGainDb the total antenna gain of both transmitter and receiver, unit in dB.
+    * \param m_qdPath path to the qd channel model params from Ray tracing 
     *
     * \return the power spectral density of the received signal, unit is Watt.
     *
@@ -146,7 +147,8 @@ public:
                                    Ptr<const THzDirectionalAntenna> aAntenna,
                                    Ptr<const THzDirectionalAntenna> bAntenna,
                                    const uint16_t maxRay,
-                                   const double rxTxGainDb ) const;
+                                   const double rxTxGainDb,
+                                   const std::string m_qdPath ) const;
   /**
     * \param txPsd the power spectral density of the transmitted signal, unit in Watt.
     * \param aMob the mobility of sender.
@@ -172,20 +174,22 @@ public:
     * \param bMob the mobility of receiver.
     * \param aAntenna the antenna model of sender.
     * \param bAntenna the antenna model of receiver.
-    *
+    * \param m_qdPath path to the qd channel model params from Ray tracing 
     * \return the Hybrid channel model include rays, pathloss, angles, and delays.
     *
     */
   Ptr<const MatrixBasedChannelModel::ChannelMatrix> GetHBChannel (Ptr<const MobilityModel> aMob,
                                                                   Ptr<const MobilityModel> bMob,
                                                                   Ptr<const THzDirectionalAntenna> aAntenna,
-                                                                  Ptr<const THzDirectionalAntenna> bAntenna) const;
+                                                                  Ptr<const THzDirectionalAntenna> bAntenna,
+                                                                  const std::string m_qdPath) const;
 
   /**
     * \param aMob the mobility of sender.
     * \param bMob the mobility of receiver.
     * \param aAntenna the antenna model of sender.
     * \param bAntenna the antenna model of receiver.
+    * \param m_qdPath path to the qd channel model params from Ray tracing 
     *
     * \return the channel model of Ray tracing include rays, pathloss, angles, and delays.
     *
@@ -193,7 +197,8 @@ public:
   Ptr< const MatrixBasedChannelModel::ChannelMatrix> GetRTChannel (Ptr<const MobilityModel> aMob,
                                                                    Ptr<const MobilityModel> bMob,
                                                                    Ptr<const THzDirectionalAntenna> aAntenna,
-                                                                   Ptr<const THzDirectionalAntenna> bAntenna) const;
+                                                                   Ptr<const THzDirectionalAntenna> bAntenna,
+                                                                   const std::string m_qdPath) const;
 
   /**
     * \param aMob the mobility of sender.

@@ -107,7 +107,13 @@ THzChannel::GetDevice (std::size_t i) const
 }
 void
 THzChannel::AddDevice (Ptr<THzNetDevice> dev, Ptr<THzPhy> phy)
-{m_qarameters> txParams)
+{
+  NS_LOG_INFO ("CH: Adding dev/phy pair number " << m_devList.size () + 1);
+  m_devList.push_back (std::make_pair (dev, phy));
+}
+
+bool
+THzChannel::SendPacket (Ptr<THzSpectrumSignalParameters> txParams)
 {
   NS_LOG_FUNCTION ("");
   Ptr<MobilityModel> XnodeMobility = 0; // initiation
@@ -123,7 +129,9 @@ THzChannel::AddDevice (Ptr<THzNetDevice> dev, Ptr<THzPhy> phy)
       if (txParams->txPhy == it->second)
         {
           m_sendDev = it->first;
-          XnodeMobility = it->first->GetNodem_q ();
+          XnodeMobility = it->first->GetNode ()->GetObject<MobilityModel> ();
+          m_XnodeMode = it->first->GetDirAntenna ()->CheckAntennaMode ();
+          m_thzDA = it->first->GetDirAntenna ();
           break;
         }
     }
