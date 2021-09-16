@@ -251,11 +251,12 @@ THzSpectrumPropagationLoss::DoCalcHybridModelRxPower ( Ptr<const THzSpectrumSign
                                                        Ptr<const THzDirectionalAntenna> aAntenna,
                                                        Ptr<const THzDirectionalAntenna> bAntenna,
                                                        const uint16_t maxRay,
-                                                       const double rxTxGainDb) const
+                                                       const double rxTxGainDb,
+                                                       const std::string m_qdPath) const
 {
   NS_LOG_FUNCTION (this);
   
-  Ptr<const MatrixBasedChannelModel::ChannelMatrix> channelParamH = GetHBChannel (aMob, bMob, aAntenna, bAntenna);
+  Ptr<const MatrixBasedChannelModel::ChannelMatrix> channelParamH = GetHBChannel (aMob, bMob, aAntenna, bAntenna, m_qdPath);
   double rxPowerDbm = RxPowerCal (channelParamH, maxRay, rxTxGainDb, txParams);
 
   return rxPowerDbm;
@@ -284,14 +285,15 @@ Ptr<const MatrixBasedChannelModel::ChannelMatrix>
 THzSpectrumPropagationLoss::GetHBChannel (Ptr<const MobilityModel> aMob,
                                           Ptr<const MobilityModel> bMob,
                                           Ptr<const THzDirectionalAntenna> aAntenna,
-                                          Ptr<const THzDirectionalAntenna> bAntenna) const
+                                          Ptr<const THzDirectionalAntenna> bAntenna,
+                                          const std::string m_qdPath) const
 {
   NS_LOG_FUNCTION (this);
 
   Ptr< MatrixBasedChannelModel::ChannelMatrix> hbChannel = Create<MatrixBasedChannelModel::ChannelMatrix> ();
   // instance qd channel and stat channels
   // HB = qd + stat
-  Ptr< const MatrixBasedChannelModel::ChannelMatrix> qdChannel = GetRTChannel (aMob, bMob, aAntenna, bAntenna);
+  Ptr< const MatrixBasedChannelModel::ChannelMatrix> qdChannel = GetRTChannel (aMob, bMob, aAntenna, bAntenna, m_qdPath);
   Ptr< const MatrixBasedChannelModel::ChannelMatrix> statChannel = GetStatChannel (qdChannel, aMob, bMob, aAntenna, bAntenna);
   
 
@@ -326,7 +328,8 @@ Ptr<const MatrixBasedChannelModel::ChannelMatrix>
 THzSpectrumPropagationLoss::GetRTChannel (Ptr<const MobilityModel> aMob,
                                           Ptr<const MobilityModel> bMob,
                                           Ptr<const THzDirectionalAntenna> aAntenna,
-                                          Ptr<const THzDirectionalAntenna> bAntenna)const
+                                          Ptr<const THzDirectionalAntenna> bAntenna,
+                                          const std::string m_qdPath)const
 {
   NS_LOG_FUNCTION (this);
 
@@ -336,12 +339,10 @@ THzSpectrumPropagationLoss::GetRTChannel (Ptr<const MobilityModel> aMob,
   Ptr< MatrixBasedChannelModel::ChannelMatrix> channelParamsN = Create< MatrixBasedChannelModel::ChannelMatrix> ();
   
   std::string qdFilesPath = "contrib/qd-channel/model/QD/"; // The path of the folder with the QD scenarios
-  std::string scenario = "THZRef1-Det";  // "THZRef1-Det" Determinstic mobility (Figure 2 Ref paper) rayTacing model The name of the scenario
  
-  Ptr<QdChannelModel> qdChannel = CreateObject<QdChannelModel> (qdFilesPath, scenario);
+  Ptr<QdChannelModel> qdChannel = CreateObject<QdChannelModel> (qdFilesPath, m_qdPath);
   
   channelParams = qdChannel->GetRTChannel (aMob, bMob, aAntenna);
-  NS_LOG_DEBUG("Start to Copy from QDChannel TO NEW Channel + modification");
 
   channelParamsN->m_delay.clear ();
   channelParamsN->m_angle.clear ();
@@ -352,12 +353,12 @@ THzSpectrumPropagationLoss::GetRTChannel (Ptr<const MobilityModel> aMob,
   channelParamsN->m_generatedTime = channelParams->m_generatedTime;
   channelParamsN->m_nodeIds = channelParams->m_nodeIds;
 
-  double MPCCount = channelParams->m_channel[0][0].size ();
-  NS_LOG_DEBUG ("MPCCOUNT:" << MPCCount);
+  double mpcCount = channelParams->m_channel[0][0].size ();
+  NS_LOG_DEBUG ("mpcCount:" << mpcCount);
 
  std::complex<double>  txAntennaPattern;
  std::complex<double>  rxAntennaPattern;
- for (double mpcIndex = 1; mpcIndex < MPCCount; mpcIndex++)  // pass the '0' Mpc --> los scenarios antenna pattern included in the power calc step
+ for (double mpcIndex = 1; mpcIndex < mpcCount; mpcIndex++)  // pass the '0' Mpc --> los scenarios antenna pattern included in the power calc step
  {
     txAntennaPattern = std::pow (10, (aAntenna->GetAntennaGainDbAngle (DegreesToRadians(channelParamsN->m_angle[2][mpcIndex]), aMob, bMob) / 20.0));
     rxAntennaPattern = std::pow (10, (aAntenna->GetAntennaGainDbAngle (DegreesToRadians(channelParamsN->m_angle[0][mpcIndex]), aMob, bMob) / 20.0));
@@ -439,7 +440,7 @@ THzSpectrumPropagationLoss::GetStatChannel (Ptr<const MatrixBasedChannelModel::C
       {
         NS_LOG_DEBUG("No ray excists and no Matrix Genearated!!");
         H[bIndex][aIndex].resize (0, std::complex<double> (0, 0));
-        }
+      }
     }
   }
 	
@@ -454,9 +455,8 @@ THzSpectrumPropagationLoss::GetStatChannel (Ptr<const MatrixBasedChannelModel::C
     {
       NS_LOG_DEBUG ("No ray excists and no Matrix Genearated!!");
       sAngle[aIndex].resize (0, 0);
-      }
+    }
   }
-
 
   // Param Inititlize, Values are updates due to TABLE VI of "channel measurment and Ray-tracing-statistical Hybrid modeling for Low-terahert Indoor Communication"
   double mu = 0;

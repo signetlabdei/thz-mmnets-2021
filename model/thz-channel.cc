@@ -65,12 +65,17 @@ THzChannel::GetTypeId ()
                    MakeDoubleAccessor (&THzChannel::m_noiseFloor),
                    MakeDoubleChecker<double> ())
     .AddAttribute ("ChannelType",
-                  "Define the model of Channel,terasim, HB, FS",
+                  "Define the model of Channel, terasim, HB, FS",
                    StringValue("terasim"),
                    MakeStringAccessor(&THzChannel::m_type),
                    MakeStringChecker())
+    .AddAttribute ("QDScenario",
+                   " Path to the QD scenario",
+                   StringValue ("THZRef1-Det"),
+                   MakeStringAccessor(&THzChannel::m_qdPath),
+                   MakeStringChecker()) 
     .AddAttribute ("maxRay",
-                  "the maximum number of rays contribute to calculate the recived power",
+                  "the maximum number of rays contribute to calculate the received power",
                    IntegerValue(1),
                    MakeIntegerAccessor(&THzChannel::m_ray),
                    MakeIntegerChecker<uint16_t>())
@@ -102,13 +107,7 @@ THzChannel::GetDevice (std::size_t i) const
 }
 void
 THzChannel::AddDevice (Ptr<THzNetDevice> dev, Ptr<THzPhy> phy)
-{
-  NS_LOG_INFO ("CH: Adding dev/phy pair number " << m_devList.size () + 1);
-  m_devList.push_back (std::make_pair (dev, phy));
-}
-
-bool
-THzChannel::SendPacket (Ptr<THzSpectrumSignalParameters> txParams)
+{m_qarameters> txParams)
 {
   NS_LOG_FUNCTION ("");
   Ptr<MobilityModel> XnodeMobility = 0; // initiation
@@ -124,9 +123,7 @@ THzChannel::SendPacket (Ptr<THzSpectrumSignalParameters> txParams)
       if (txParams->txPhy == it->second)
         {
           m_sendDev = it->first;
-          XnodeMobility = it->first->GetNode ()->GetObject<MobilityModel> ();
-          m_XnodeMode = it->first->GetDirAntenna ()->CheckAntennaMode ();
-          m_thzDA = it->first->GetDirAntenna ();
+          XnodeMobility = it->first->GetNodem_q ();
           break;
         }
     }
@@ -153,23 +150,23 @@ THzChannel::SendPacket (Ptr<THzSpectrumSignalParameters> txParams)
               m_Rxorientation = 0;
             }
           double rxPower = 0;
-            m_totalGain = itt->first->GetDirAntenna ()->GetAntennaGain (XnodeMobility, YnodeMobility, m_XnodeMode, m_YnodeMode, m_Rxorientation);
+          m_totalGain = itt->first->GetDirAntenna ()->GetAntennaGain (XnodeMobility, YnodeMobility, m_XnodeMode, m_YnodeMode, m_Rxorientation);
 
-            if (m_type == "HB")
-            {
-              rxPower = m_loss->DoCalcHybridModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain);
-              break;
-            }
-            else if (m_type == "FS")
-            {
-              rxPower = m_loss->DoCalcFSModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain);
-              break;
-            }
-            else
-            {
-              rxPower = m_loss->CalcRxPowerDA (txParams, XnodeMobility, YnodeMobility, m_totalGain);
-              break;
-            }
+          if (m_type == "HB")
+          {
+            rxPower = m_loss->DoCalcHybridModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain, m_qdPath);
+            break;
+          }
+          else if (m_type == "FS")
+          {
+            rxPower = m_loss->DoCalcFSModelRxPower (txParams, XnodeMobility, YnodeMobility, itt->first->GetDirAntenna(), it->first->GetDirAntenna(), m_ray, m_totalGain);
+            break;
+          }
+          else
+          {
+            rxPower = m_loss->CalcRxPowerDA (txParams, XnodeMobility, YnodeMobility, m_totalGain);
+            break;
+          }
           NS_LOG_DEBUG ("node " << it->first->GetNode ()->GetId () << "->" << itt->first->GetNode ()->GetId () << ", txPower = " << txParams->txPower << " dBm, totalGain = " << m_totalGain + 30 << " dBm, rxPower = " << rxPower << " dBm" << "  now: " << Simulator::Now ());
           uint32_t dstNodeId = itt->first->GetNode ()->GetId ();
           Ptr<Packet> copy = txParams->packet->Copy ();

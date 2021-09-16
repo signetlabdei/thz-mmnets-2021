@@ -157,7 +157,8 @@ private:
   Ptr<THzSpectrumPropagationLoss> m_loss;
   Ptr<ConstantSpeedPropagationDelayModel> m_delay;
   std::string m_type;
-  double m_ray;
+  std::string m_qdPath;
+  u_int16_t m_ray;
   Ptr<THzDirectionalAntenna> m_thzDA;
   Ptr<THzNetDevice> m_sendDev;
 
