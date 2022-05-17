@@ -194,7 +194,7 @@ public:
     * \return the channel model of Ray tracing include rays, pathloss, angles, and delays.
     *
     */
-  Ptr< const MatrixBasedChannelModel::ChannelMatrix> GetRTChannel (Ptr<const MobilityModel> aMob,
+  Ptr< MatrixBasedChannelModel::ChannelMatrix> GetRTChannel (Ptr<const MobilityModel> aMob,
                                                                    Ptr<const MobilityModel> bMob,
                                                                    Ptr<const THzDirectionalAntenna> aAntenna,
                                                                    Ptr<const THzDirectionalAntenna> bAntenna,
