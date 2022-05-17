@@ -76,7 +76,7 @@ THzChannel::GetTypeId ()
                    MakeStringChecker()) 
     .AddAttribute ("maxRay",
                   "the maximum number of rays contribute to calculate the received power",
-                   IntegerValue(1),
+                   IntegerValue(100),
                    MakeIntegerAccessor(&THzChannel::m_ray),
                    MakeIntegerChecker<uint16_t>())
   ;
