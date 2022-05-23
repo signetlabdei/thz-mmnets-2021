@@ -290,41 +290,34 @@ THzSpectrumPropagationLoss::GetHBChannel (Ptr<const MobilityModel> aMob,
 {
   NS_LOG_FUNCTION (this);
 
-  Ptr< MatrixBasedChannelModel::ChannelMatrix> hbChannel = Create<MatrixBasedChannelModel::ChannelMatrix> ();
   // instance qd channel and stat channels
   // HB = qd + stat
-  Ptr< const MatrixBasedChannelModel::ChannelMatrix> qdChannel = GetRTChannel (aMob, bMob, aAntenna, bAntenna, m_qdPath);
+  Ptr< MatrixBasedChannelModel::ChannelMatrix> qdChannel = GetRTChannel (aMob, bMob, aAntenna, bAntenna, m_qdPath);
   Ptr< const MatrixBasedChannelModel::ChannelMatrix> statChannel = GetStatChannel (qdChannel, aMob, bMob, aAntenna, bAntenna);
   
-
-  hbChannel->m_delay.insert (hbChannel->m_delay.begin (), qdChannel->m_delay.begin (), qdChannel->m_delay.end ());
-  hbChannel->m_delay.insert (hbChannel->m_delay.end (), statChannel->m_delay.begin (), statChannel->m_delay.end ());
-  hbChannel->m_angle.insert (hbChannel->m_angle.begin (), qdChannel->m_angle.begin (), qdChannel->m_angle.end ());
-  hbChannel->m_angle.insert (hbChannel->m_angle.end (), statChannel->m_angle.begin (), statChannel->m_angle.end ());
-  hbChannel->m_channel.insert (hbChannel->m_channel.begin (), qdChannel->m_channel.begin(), qdChannel->m_channel.end ());
+  qdChannel->m_delay.insert (qdChannel->m_delay.end (), statChannel->m_delay.begin (), statChannel->m_delay.end ());
+  qdChannel->m_angle.insert (qdChannel->m_angle.end (), statChannel->m_angle.begin (), statChannel->m_angle.end ());
   for (uint8_t i = 0; i < statChannel->m_channel[0][0].size (); i++)
   {
-    hbChannel->m_channel[0][0].push_back (statChannel->m_channel[0][0][i]);
+    qdChannel->m_channel[0][0].push_back (statChannel->m_channel[0][0][i]);
   }
 
-  NS_ABORT_MSG_IF (hbChannel->m_delay.size () != qdChannel->m_delay.size () + statChannel->m_delay.size (), "Error in Coversion HB Channel");
-
-  for (uint8_t i = 0; i < hbChannel->m_delay.size (); i++)
+  for (uint8_t i = 0; i < qdChannel->m_delay.size (); i++)
   {
     NS_LOG_DEBUG("CHannel created with this params:" <<
-                "Delay:" << hbChannel->m_delay[i]<<
-                ",angle [0]:" << hbChannel->m_angle[0][i] <<
-                ",angle [1]:" << hbChannel  ->m_angle[1][i] <<
-                ",angle [2]:" << hbChannel->m_angle[2][i] <<
-                ",angle [3]:" << hbChannel->m_angle[3][i] <<
-                "channel:" <<hbChannel->m_channel[0][0][i]);
+                "Delay:" << qdChannel->m_delay[i]<<
+                ",angle [0]:" << qdChannel->m_angle[0][i] <<
+                ",angle [1]:" << qdChannel  ->m_angle[1][i] <<
+                ",angle [2]:" << qdChannel->m_angle[2][i] <<
+                ",angle [3]:" << qdChannel->m_angle[3][i] <<
+                "channel:" <<qdChannel->m_channel[0][0][i]);
   }
 
-  return hbChannel;
+  return qdChannel;
 }
 
 
-Ptr<const MatrixBasedChannelModel::ChannelMatrix>
+Ptr< MatrixBasedChannelModel::ChannelMatrix>
 THzSpectrumPropagationLoss::GetRTChannel (Ptr<const MobilityModel> aMob,
                                           Ptr<const MobilityModel> bMob,
                                           Ptr<const THzDirectionalAntenna> aAntenna,
@@ -340,7 +333,7 @@ THzSpectrumPropagationLoss::GetRTChannel (Ptr<const MobilityModel> aMob,
   
   std::string qdFilesPath = "contrib/qd-channel/model/QD/"; // The path of the folder with the QD scenarios
  
-  Ptr<QdChannelModel> qdChannel = CreateObject<QdChannelModel> (qdFilesPath, m_qdPath);
+  static Ptr<QdChannelModel> qdChannel = CreateObject<QdChannelModel> (qdFilesPath, m_qdPath);
   
   channelParams = qdChannel->GetRTChannel (aMob, bMob, aAntenna);
 
