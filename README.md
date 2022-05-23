@@ -39,16 +39,16 @@ macroMpcChannel is an illustration of MPC channel model usage.
 [2] The channel model referred to as "FS" in the code is fully stochastic and can be utilized easily.
 [1] refer as "HB" in code is part of Raytracing, and these steps must be taken prior to using the module:
 
-download and install "qd-channel" module(https://github.com/AmirAshtariG/qd-channel.git).
-to generate Raytracing:
+- download and install "qd-channel" module(https://github.com/AmirAshtariG/qd-channel.git) to import raytracing to ns-3.
+- Raytracing:
 1) current examples can be found in "qd-channel/model/QD/".
 or
 2) "qd-realization" (https://github.com/signetlabdei/qd-realization) or any other Raytracing tool ("qd-realization" has already ns-3 compatible output for "qd-channel" module) can be used to generate new scenarios.
 
-[1]Yi Chen, Yuanbo Li, Chong Han, Ziming Yu, and Guangjian Wang. 2021. Channel
+- [1]Yi Chen, Yuanbo Li, Chong Han, Ziming Yu, and Guangjian Wang. 2021. Channel
 Measurement and Ray-Tracing-Statistical Hybrid Modeling for Low-Terahertz Indoor Communications. IEEE Transactions on Wireless Communications ,Early Access (2021). https://doi.org/10.1109/TWC.2021.3090781
-[2]Shihao Ju, Yunchou Xing, Ojas Kanhere, and Theodore S. Rappaport. 2021. Millimeter Wave and Sub-Terahertz Spatial Statistical Channel Model for an Indoor Office Building. IEEE Journal on Selected Areas in Communications 39, 6 (Apr2021), 1561–1575.
-[3]A. Ashtari Gargari, M. Polese, M. Zorzi, "Full-stack comparison of channel models for networks above 100 GHz in an indoor scenario", in Proceedings of the 5th ACM Workshop on Millimeter-Wave and Terahertz Networks and Sensing Systems (mmNets '21), October 2021, Pages 43–48, https://doi.org/10.1145/3477081.3481677
+- [2]Shihao Ju, Yunchou Xing, Ojas Kanhere, and Theodore S. Rappaport. 2021. Millimeter Wave and Sub-Terahertz Spatial Statistical Channel Model for an Indoor Office Building. IEEE Journal on Selected Areas in Communications 39, 6 (Apr2021), 1561–1575.
+- [3]A. Ashtari Gargari, M. Polese, M. Zorzi, "Full-stack comparison of channel models for networks above 100 GHz in an indoor scenario", in Proceedings of the 5th ACM Workshop on Millimeter-Wave and Terahertz Networks and Sensing Systems (mmNets '21), October 2021, Pages 43–48, https://doi.org/10.1145/3477081.3481677
 
 
 Limitation
